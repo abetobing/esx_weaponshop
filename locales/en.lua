@@ -10,4 +10,5 @@ Locales ['en'] = {
   ['shop_menu_prompt'] = 'press ~INPUT_CONTEXT~ to access the ~y~Ammu-Nation~s~.',
   ['shop_menu_item'] = '$%s',
   ['map_blip'] = 'ammu-Nation',
+  ['map_blip_bm'] = 'Illegal Weapons',
 }
