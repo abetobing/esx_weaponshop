@@ -154,21 +154,37 @@ end)
 -- Create Blips
 Citizen.CreateThread(function()
 	for k,v in pairs(Config.Zones) do
-		if v.Legal then
+		--if v.Legal then
 			for i = 1, #v.Locations, 1 do
 				local blip = AddBlipForCoord(v.Locations[i])
 
 				SetBlipSprite (blip, 110)
 				SetBlipDisplay(blip, 4)
 				SetBlipScale  (blip, 1.0)
-				SetBlipColour (blip, 81)
+				if v.Legal then
+					SetBlipColour (blip, 81)
+				else
+					SetBlipColour (blip, 4)
+					SetBlipSprite (blip, 470)
+				end
 				SetBlipAsShortRange(blip, true)
 
 				BeginTextCommandSetBlipName("STRING")
-				AddTextComponentSubstringPlayerName(_U('map_blip'))
+				if v.Legal then
+					AddTextComponentSubstringPlayerName(_U('map_blip'))
+				else
+					AddTextComponentSubstringPlayerName(_U('map_blip_bm'))
+				end
 				EndTextCommandSetBlipName(blip)
 			end
-		end
+			
+			for k,ped in ipairs(v.SellerPed) do
+				BlackMarketSellerPed(ped)
+			end
+			for k,veh in ipairs(v.Vehicles) do
+				BlackMarketSellerPed(veh)
+			end
+		--end
 	end
 end)
 
@@ -244,3 +260,31 @@ Citizen.CreateThread(function()
 		end
 	end
 end)
+
+
+function BlackMarketSellerPed(v)
+	RequestModel(GetHashKey(v.model))
+	while not HasModelLoaded(GetHashKey(v.model)) do
+		Wait(0)
+	end
+	
+	local shopOwner = CreatePed(v.pedtype, GetHashKey(v.model), v.x, v.y, v.z, v.heading, false, false)
+	SetBlockingOfNonTemporaryEvents(shopOwner, true)
+	AddArmourToPed(shopOwner, 1000)
+	SetPedCanBeTargetted(shopOwner, false)
+	--GiveWeaponToPed(shopOwner, GetHashKey("WEAPON_PISTOL"), 250, false, true)
+	SetPedCombatAttributes(shopOwner, 1424, true)
+	--SetAmbientVoiceName(shopOwner, v.voice)
+	SetModelAsNoLongerNeeded(GetHashKey(v.model))
+end
+
+
+function BlackMarketVehicle(v)
+	RequestModel(GetHashKey(v.model))
+	while not HasModelLoaded(GetHashKey(v.model)) do
+		Wait(0)
+	end
+
+	local veh = CreateVehicle(GetHashKey(v.model), v.x, v.y, v.z, v.heading, false, false)
+	SetModelAsNoLongerNeeded(GetHashKey(v.model))
+end
